@@ -4,6 +4,7 @@ import 'package:dsep_bpp/screens/signup.dart';
 import 'package:dsep_bpp/screens/tabbar.dart';
 import 'package:dsep_bpp/utils/colors_widget.dart';
 import 'package:dsep_bpp/utils/globals.dart';
+import 'package:dsep_bpp/widgets/custom_loader.dart';
 import 'package:dsep_bpp/widgets/text_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -48,7 +49,7 @@ class _SignInScreenState extends State<SignInScreen> {
   String? selectedType;
   late bool visible = false;
   late String formString;
-  var i;
+  bool loader = false;
 
   @override
   void initState() {
@@ -206,38 +207,45 @@ class _SignInScreenState extends State<SignInScreen> {
     return SizedBox(
       height: _large ? 50 : (_medium ? 50 : 40),
       width: _width / 1.8,
-      child: PlatformElevatedButton(
-        color: Theme.of(context).primaryColor,
-        onPressed: () {
-          if (emailController.text.isNotEmpty &&
-              passwordController.text.isNotEmpty) {
-            Global.username = emailController.text;
-            var Data = {
-              "userId": emailController.text,
-              "password": passwordController.text
-            };
-            validate(Data);
-            //_submit(uidController.text);
-            // Navigator.of(context).pushReplacement(
-            //     MaterialPageRoute(builder: (context) => const Tabbar()));
-          } else {
-            Fluttertoast.showToast(
-                msg: "Enter Username and password...",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 3,
-                backgroundColor: Colors.black,
-                textColor: Colors.white,
-                fontSize: 16.0);
-            //_showerrorDialog('Invalid UID');
-          }
-        },
-        padding: const EdgeInsets.all(8),
-        child: Text(
-          'Login',
-          style: TextStyle(fontSize: _large ? 25 : (_medium ? 20 : 15)),
-        ),
-      ),
+      child: loader
+          ? Loader()
+          : PlatformElevatedButton(
+              color: Theme.of(context).primaryColor,
+              onPressed: () {
+                if (emailController.text.isNotEmpty &&
+                    passwordController.text.isNotEmpty) {
+                  Global.username = emailController.text;
+                  if (!loader) {
+                    setState(() {
+                      loader = true;
+                    });
+                  }
+                  var Data = {
+                    "userId": emailController.text,
+                    "password": passwordController.text
+                  };
+                  validate(Data);
+                  //_submit(uidController.text);
+                  // Navigator.of(context).pushReplacement(
+                  //     MaterialPageRoute(builder: (context) => const Tabbar()));
+                } else {
+                  Fluttertoast.showToast(
+                      msg: "Enter Username and password...",
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 3,
+                      backgroundColor: Colors.black,
+                      textColor: Colors.white,
+                      fontSize: 16.0);
+                  //_showerrorDialog('Invalid UID');
+                }
+              },
+              padding: const EdgeInsets.all(8),
+              child: Text(
+                'Login',
+                style: TextStyle(fontSize: _large ? 25 : (_medium ? 20 : 15)),
+              ),
+            ),
     );
   }
 
@@ -343,10 +351,17 @@ class _SignInScreenState extends State<SignInScreen> {
       //   "Conn3ection": "keep-alive",
       var response = await http.post(Uri.parse(Api.signIn),
           body: data1, headers: headers1);
+      var i = 0;
       if (response.statusCode == 200) {
+        setState(() {
+          loader = false;
+        });
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const Tabbar()));
       } else if (response.statusCode == 401) {
+        setState(() {
+          loader = false;
+        });
         Fluttertoast.showToast(
             msg: "Incorrect Username Or Password",
             toastLength: Toast.LENGTH_SHORT,
@@ -356,6 +371,9 @@ class _SignInScreenState extends State<SignInScreen> {
             textColor: Colors.white,
             fontSize: 16.0);
       } else {
+        setState(() {
+          loader = false;
+        });
         Fluttertoast.showToast(
             msg: "Something went wrong please try after sometime",
             toastLength: Toast.LENGTH_SHORT,
