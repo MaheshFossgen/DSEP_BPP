@@ -45,6 +45,7 @@ class _SignInScreenState extends State<SignInScreen> {
   String? selectedType;
   late bool visible = false;
   late String formString;
+  var i;
 
   @override
   void initState() {
