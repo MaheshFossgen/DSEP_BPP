@@ -5,4 +5,5 @@ class Api {
       "https://proteanrc.centralindia.cloudapp.azure.com/dsep-bpp-1";
   static const String fetchScheme = _domain + "fetchScheme";
   static const String signUp = _bppUrl + "/api/signup";
+  static const String signIn = _bppUrl + "/api/token";
 }

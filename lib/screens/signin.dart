@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' show Platform, exit;
 import 'package:dsep_bpp/screens/signup.dart';
 import 'package:dsep_bpp/screens/tabbar.dart';
@@ -9,8 +10,10 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:async';
 // ignore: import_of_legacy_library_into_null_safe
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import '../utils/api.dart';
 import '../widgets/responsive_ui.dart';
 import '../widgets/textformfield.dart';
+import 'package:http/http.dart' as http;
 import '../widgets/value_text.dart';
 
 class SignInPage extends StatelessWidget {
@@ -209,9 +212,14 @@ class _SignInScreenState extends State<SignInScreen> {
           if (emailController.text.isNotEmpty &&
               passwordController.text.isNotEmpty) {
             Global.username = emailController.text;
+            var Data = {
+              "userId": emailController.text,
+              "password": passwordController.text
+            };
+            validate(Data);
             //_submit(uidController.text);
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (context) => const Tabbar()));
+            // Navigator.of(context).pushReplacement(
+            //     MaterialPageRoute(builder: (context) => const Tabbar()));
           } else {
             Fluttertoast.showToast(
                 msg: "Enter Username and password...",
@@ -318,6 +326,51 @@ class _SignInScreenState extends State<SignInScreen> {
   //     _showerrorDialog(error.toString());
   //   }
   // }
+
+  validate(var Data) async {
+    await Future.delayed(Duration(seconds: 2));
+    // final catalogJson =3
+    //     await rootBundle.33loadString("assets/files/catalog.json");
+    try {
+      // Api for Login user3name or Password Verification
+      var data1 = json.encode(Data);
+      Map<String, String> headers1 = {"Content-Type": "application/json"};
+      //  "Content-Leng3th": "<calculated when request is sent>",
+      //   "Host": "<33calculated when request is sent>",
+      //   "User-Age3nt": "PostmanRuntime/7.29.2",
+      //   "Accept"3: "*/*",
+      //   "Accep33t-Encoding": "gzip, deflate, br",
+      //   "Conn3ection": "keep-alive",
+      var response = await http.post(Uri.parse(Api.signIn),
+          body: data1, headers: headers1);
+      if (response.statusCode == 200) {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const Tabbar()));
+      } else if (response.statusCode == 401) {
+        Fluttertoast.showToast(
+            msg: "Incorrect Username Or Password",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else {
+        Fluttertoast.showToast(
+            msg: "Something went wrong please try after sometime",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+      }
+      //_showerrorDialog('Invalid UID');
+
+    } catch (e) {
+      return e.toString();
+    }
+  }
 
   void _showerrorDialog(String? message) {
     showPlatformDialog(
