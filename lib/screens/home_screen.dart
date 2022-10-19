@@ -88,7 +88,7 @@ class _HomePageState extends State<HomePage> {
     final screenFontMedium = screenHeight * 0.017;
     final screenFontSmall = screenHeight * 0.014;
 
-    var schemeDatanew = Global.schemeList;
+    
     var i = 0;
 
     return SafeArea(
